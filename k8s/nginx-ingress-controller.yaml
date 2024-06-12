@@ -1,0 +1,30 @@
+# nginx-ingress-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ingress-controller
+  namespace: ingress-nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx-ingress-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-ingress-controller
+    spec:
+      containers:
+        - name: nginx-ingress-controller
+          image: k8s.gcr.io/ingress-nginx/controller:v1.0.0
+          args:
+            - /nginx-ingress-controller
+            - --configmap=$(POD_NAMESPACE)/nginx-configuration
+            - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
+            - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
+            - --publish-service=$(POD_NAMESPACE)/ingress-nginx-controller
+          ports:
+            - name: http
+              containerPort: 80
+            - name: https
+              containerPort: 443
